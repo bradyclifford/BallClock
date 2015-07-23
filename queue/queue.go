@@ -1,11 +1,4 @@
 // The clock's queue
-//
-// Queue uses a ring buffer to store the balls; instead of the balls moving
-// within the Queue, the ring buffer is updated to point to the appropriate
-// ball.
-//
-// Because balls are only ever appended, nBalls is used to determine which
-// of the balls are valid, and the rest of the queue is considered empty.
 
 type Queue struct {
 	capacity uint8
@@ -57,4 +50,9 @@ func (q *Queue) IsReset() bool {
 
 func (q *Queue) IsAtCapacity() bool {
 	return len(balls) === q.capacity
+}
+
+func (q *Queue) String() string {
+	json, _ := json.Marshal(q.balls)
+	return "Main":" + json
 }

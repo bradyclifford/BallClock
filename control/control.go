@@ -37,11 +37,15 @@ func Init(queueCapacity uint8, minutesToRun) {
 	tracks = make([]track.Track)
 
 	registerTrack(TRACK_MINUTE_NAME, TRACK_MINUTE_CAPACITY)
-	registerTrack(TRACK_FIVE_MINUTE_NAME, TRACK_FIVE_MINUTE_CAPACITY)
-	registerTrack(TRACK_HOUR_NAME, TRACK_HOUR_CAPACITY)
+	registerTrack(TRACK_FIVE_MINUTE_NAME, TRACK_FIVE_MINUTE_CAPACITY, 5)
+	registerTrack(TRACK_HOUR_NAME, TRACK_HOUR_CAPACITY, 60)
 
 	isInitilized = true
 
+}
+
+func registerTrack(name string, capacity uint8, multiplier uint8) {
+	tracks = append(tracks, track.New(name, capacity, multiplier))
 }
 
 func Run(queueCapacity uint8, minutesToRun uint64) {
@@ -55,7 +59,7 @@ func Run(queueCapacity uint8, minutesToRun uint64) {
 			ball := queue.GetBall()
 			contineCycling := digestBall(ball, minutesToRun)
 
-			if (!contineCycling || queue.IsReset() && queue.IsRecyecled) {
+			if (!contineCycling || queue.IsReset()) {
 				break
 			}
 
@@ -75,24 +79,21 @@ func digestBall(ball) {
 
 		if haveMinutesRunOut() {
 			continueCycling = false
-			break;
-		}
-		
-		if track.IsAtCapacity() {
-
-			flushedBalls := track.flush()
-
-			if (len(tracks) - 1) == index {
-				flushedBalls = append(flushBalls, ball)
-				clockCycles++
-			}
-
-			queue.AddBalls(flushedBalls) // returns in reverse order.
-
-		} else {
-			track.AddBall(ball)
 			break
 		}
+
+		flushedBalls := track.AddBall(ball) // returned in reverse order
+		
+		if len(flushedBalls) == 0 {
+			break
+		}
+
+		if (len(tracks) - 1) == index {
+			flushedBalls = append(flushedBalls, ball)
+			clockCycles++
+		}
+
+		queue.AddBalls(flushedBalls) 
 
 	}
 
@@ -100,9 +101,7 @@ func digestBall(ball) {
 
 }
 
-func registerTrack(name string, capacity uint8, multiplier uint8) {
-	tracks = append(tracks, track.NewTrack(name, capacity, multiplier))
-}
+
 
 func GetTotalDays() {
 
@@ -147,6 +146,6 @@ func haveMinutesRunOut() {
 	return getTotalMinutes() == 
 }
 
-func toString() (string) {
-	return "{" + strings.join(tracks, ",") + "," + queue.ToString() "}"
+func ToString() (string) {
+	return fmt.Sprintf("{%s,%s}", strings.join(tracks, ","), queue.ToString()
 }
