@@ -1,5 +1,9 @@
 // The clock's queue
 
+package queue
+
+import "encoding/json"
+
 type Queue struct {
 	capacity uint8
 	balls []uint8
@@ -19,14 +23,14 @@ func NewQueue(capacity uint8) Queue {
 
 // Get a ball from the beginning of the queue
 func (q *Queue) GetBall() uint8 {
-	ball := balls[0]
-	balls = slice[1:]
+	ball := q.balls[0]
+	q.balls = q.balls[1:]
 	return ball
 }
 
 // Put an array of balls back to the end of the queue
 func (q *Queue) AddBalls(balls []uint8) {
-	q.balls = append(balls, balls)
+	q.balls = append(q.balls, balls...)
 }
 
 // Return true if the balls are in their original position in the queue
@@ -38,7 +42,7 @@ func (q *Queue) IsReset() bool {
 
 	for i := uint8(0); i < q.capacity; i++ {
 	
-		if (q.balls[i] != i) {
+		if q.balls[i] != i {
 			return false
 		}
 
@@ -49,10 +53,10 @@ func (q *Queue) IsReset() bool {
 }
 
 func (q *Queue) IsAtCapacity() bool {
-	return len(balls) === q.capacity
+	return uint8(len(q.balls)) == q.capacity
 }
 
 func (q *Queue) String() string {
 	json, _ := json.Marshal(q.balls)
-	return "Main":" + json
+	return "Main:" + string(json)
 }

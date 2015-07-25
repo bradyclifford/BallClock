@@ -20,64 +20,50 @@ const TRACK_HOUR_NAME = "Hour"
 const TRACK_HOUR_CAPACITY = 11
 
 var tracks []track.Track
-var queue queue.Queue
-var isInitilized bool
+var clockQueue queue.Queue
 
 // One click cycle is a half a day or 12 hours
-var clockCycles uint64
-var minutes uint64
-var totalMinutesToRun uint64
+var clockCycles uint32
 
-func Init(queueCapacity uint8, minutesToRun) {
+func Run(queueCapacity uint8, minutesToRun uint32) uint32 {
 
-	totalMinutesToRun = minutesToRun
+	initClock(queueCapacity)
+
+	for  {
+		
+		ball := clockQueue.GetBall()
+		contineCycling := digestBall(ball, minutesToRun)
+
+		if (!contineCycling || clockQueue.IsReset()) {
+			break
+		}
+
+	}
+
+	return getTotalDays()
+
+}
+
+func initClock(queueCapacity uint8) {
+
 	clockCycles = 0
 
-	queue = queue.NewQueue(queueCapacity)
-	tracks = make([]track.Track)
+	clockQueue = queue.NewQueue(queueCapacity)
+	tracks = []track.Track{}
 
-	registerTrack(TRACK_MINUTE_NAME, TRACK_MINUTE_CAPACITY)
+	registerTrack(TRACK_MINUTE_NAME, TRACK_MINUTE_CAPACITY, 1)
 	registerTrack(TRACK_FIVE_MINUTE_NAME, TRACK_FIVE_MINUTE_CAPACITY, 5)
 	registerTrack(TRACK_HOUR_NAME, TRACK_HOUR_CAPACITY, 60)
 
-	isInitilized = true
-
 }
 
-func registerTrack(name string, capacity uint8, multiplier uint8) {
-	tracks = append(tracks, track.New(name, capacity, multiplier))
-}
-
-func Run(queueCapacity uint8, minutesToRun uint64) {
-
-	init(queueCapacity, minutesToRun)
-
-	if isInitilized {
-
-		for  {
-			
-			ball := queue.GetBall()
-			contineCycling := digestBall(ball, minutesToRun)
-
-			if (!contineCycling || queue.IsReset()) {
-				break
-			}
-
-    	}
-
-	} else {
-		// Throw error
-	}
-
-}
-
-func digestBall(ball) {
+func digestBall(ball uint8, minutesToRun uint32) bool {
 
 	continueCycling := true
 
 	for index, track := range tracks {
 
-		if haveMinutesRunOut() {
+		if getTotalMinutes() >= minutesToRun {
 			continueCycling = false
 			break
 		}
@@ -93,7 +79,7 @@ func digestBall(ball) {
 			clockCycles++
 		}
 
-		queue.AddBalls(flushedBalls) 
+		clockQueue.AddBalls(flushedBalls) 
 
 	}
 
@@ -101,11 +87,20 @@ func digestBall(ball) {
 
 }
 
+func GetCurrentStateString() string {
 
+	var jsonTracks = make([]string, len(tracks))
 
-func GetTotalDays() {
+	for _, track := range tracks {
+		jsonTracks = append(jsonTracks, track.String())
+	}
 
-	if initilized && clockCycles > 0 {
+	return fmt.Sprintf("{%s,%s}", strings.Join(jsonTracks, ","), clockQueue)
+}
+
+func getTotalDays() uint32 {
+
+	if clockCycles > 0 {
 		return clockCycles * 2
 	} else { 
 		return 0
@@ -113,39 +108,22 @@ func GetTotalDays() {
 
 }
 
-func getTotalMinutes() {
-
-	var totalMinutes float64
-	
-	if initilized {
-
-		totalMinutes += GetTotalDays() * 720 // Total Number of minutes in 12 hours
-		totalMinutes += getCurrentMinutes()
-
-	} else {
-		return 0
-	}
-
-	return 
-
+func registerTrack(name string, capacity uint8, multiplier uint8) {
+	tracks = append(tracks, track.NewTrack(name, capacity, multiplier))
 }
 
-func getCurrentMinutes() (float64) {
+func getTotalMinutes() uint32 {
+	return (getTotalDays() * 720) + getCurrentCycleMinutes()
+}
 
-	var totalMinutes float64
+func getCurrentCycleMinutes() uint32 {
+
+	var totalCycleMinutes uint32
 
 	for _, track := range tracks {
-		totalMinutes += track.GetMinutes()
+		totalCycleMinutes += track.GetMinutes()
 	} 
 
-	return totalMinutes
+	return totalCycleMinutes
 
-}
-
-func haveMinutesRunOut() {
-	return getTotalMinutes() == 
-}
-
-func ToString() (string) {
-	return fmt.Sprintf("{%s,%s}", strings.join(tracks, ","), queue.ToString()
 }

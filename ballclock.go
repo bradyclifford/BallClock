@@ -41,14 +41,14 @@ func main() {
 
 	ballCount, minutesToRun := parseCommandLine();
 
-	control.run(ballCount, minutesToRun)
+	totalDays := control.Run(uint8(ballCount), uint32(minutesToRun))
 
 	var message string
 
 	if minutesToRun > 0 {
-		message = fmt.Sprintf("%d minutes to run.", minutesToRun)
+		message = control.GetCurrentStateString()
 	} else {
-		message = fmt.Sprintf("%d balls cycle after %d days.", ballCount, 25)
+		message = fmt.Sprintf("%d balls cycle after %d days.", ballCount, totalDays)
 	}
 
 	fmt.Println(message)
