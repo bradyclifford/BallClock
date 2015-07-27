@@ -1,48 +1,52 @@
-// The clock's queue
+/*
+The ball clock's queue
+*/
 
 package queue
 
 import "encoding/json"
 
 type Queue struct {
-	capacity uint8
-	balls []uint8
+	capacity int
+	balls []int
 }
 
-// Create a new, full, BallHolder
-func NewQueue(capacity uint8) Queue {
+// Create a new, full queue
+func NewQueue(capacity int) Queue {
 
-	balls := make([]uint8, capacity)
+	balls := make([]int, capacity)
 
-	for i := uint8(0); i < capacity; i++ {
-		balls[i] = i
+	// Iterate through and add number which identifies a ball
+	for i := 0; i < capacity; i++ {
+		balls[i] = i + 1
 	}
 
 	return Queue{capacity, balls}
 }
 
-// Get a ball from the beginning of the queue
-func (q *Queue) GetBall() uint8 {
+// Remove and return a ball from the beginning of the queue
+func (q *Queue) GetBall() int {
 	ball := q.balls[0]
 	q.balls = q.balls[1:]
 	return ball
 }
 
 // Put an array of balls back to the end of the queue
-func (q *Queue) AddBalls(balls []uint8) {
+// Note: assumes they have already been reversed
+func (q *Queue) AddBalls(balls []int) {
 	q.balls = append(q.balls, balls...)
 }
 
-// Return true if the balls are in their original position in the queue
+// Determines if the balls are in their original position in the queue
 func (q *Queue) IsReset() bool {
 	
 	if !q.IsAtCapacity() {
 		return false
 	}
 
-	for i := uint8(0); i < q.capacity; i++ {
+	for i := 0; i < q.capacity; i++ {
 	
-		if q.balls[i] != i {
+		if q.balls[i] != (i + 1) {
 			return false
 		}
 
@@ -53,10 +57,10 @@ func (q *Queue) IsReset() bool {
 }
 
 func (q *Queue) IsAtCapacity() bool {
-	return uint8(len(q.balls)) == q.capacity
+	return len(q.balls) == q.capacity
 }
 
 func (q *Queue) String() string {
 	json, _ := json.Marshal(q.balls)
-	return "Main:" + string(json)
+	return "\"Main\":" + string(json)
 }

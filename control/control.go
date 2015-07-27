@@ -7,69 +7,95 @@ package control
 import (
 	"fmt"
 	"strings"
+	"math"
+	"errors"
 	"BallClock/track"
 	"BallClock/queue"
-	)
+)
 
 // Static track capacities
 const TRACK_MINUTE_NAME = "Min"
 const TRACK_MINUTE_CAPACITY = 4
+const TRACK_MINUTE_RATION = 1
 const TRACK_FIVE_MINUTE_NAME = "FiveMin"
 const TRACK_FIVE_MINUTE_CAPACITY = 11
+const TRACK_FIVE_MINUTE_RATIO = 5
 const TRACK_HOUR_NAME = "Hour"
 const TRACK_HOUR_CAPACITY = 11
+const TRACK_HOUR_RATIO = 60
 
 var tracks []track.Track
 var clockQueue queue.Queue
 
 // One click cycle is a half a day or 12 hours
-var clockCycles uint32
+var clockCycles int
 
-func Run(queueCapacity uint8, minutesToRun uint32) uint32 {
+func Run(queueCapacity int, minutesToRun int) (int, error) {
+
+	// if queueCapacity == 0, throw an error
+
+	if queueCapacity < 1 {
+		return 0, errors.New("parameter: capacity must be 1 or greater")
+	}
+
+	if minutesToRun < 0 {
+		return 0, errors.New("parameter: minutesToRun must be 0 or greater")
+	}
 
 	initClock(queueCapacity)
 
 	for  {
+
+		if minutesToRun != 0 && getTotalMinutes() >= minutesToRun {
+			break
+		}
 		
 		ball := clockQueue.GetBall()
-		contineCycling := digestBall(ball, minutesToRun)
+		digestBall(ball, minutesToRun)
 
-		if (!contineCycling || clockQueue.IsReset()) {
+		if (clockQueue.IsReset()) {
 			break
 		}
 
 	}
 
-	return getTotalDays()
+	return getTotalDays(), nil
 
 }
 
-func initClock(queueCapacity uint8) {
+func GetCurrentStateString() string {
+
+	var jsonTracks = make([]string, len(tracks))
+
+	for i, track := range tracks {
+		jsonTracks[i] = track.String()
+	}
+
+	return fmt.Sprintf("{%s,%s}", strings.Join(jsonTracks, ","), clockQueue.String())
+}
+
+func initClock(queueCapacity int) {
 
 	clockCycles = 0
 
 	clockQueue = queue.NewQueue(queueCapacity)
 	tracks = []track.Track{}
 
-	registerTrack(TRACK_MINUTE_NAME, TRACK_MINUTE_CAPACITY, 1)
-	registerTrack(TRACK_FIVE_MINUTE_NAME, TRACK_FIVE_MINUTE_CAPACITY, 5)
-	registerTrack(TRACK_HOUR_NAME, TRACK_HOUR_CAPACITY, 60)
+	registerTrack(TRACK_MINUTE_NAME, TRACK_MINUTE_CAPACITY, TRACK_MINUTE_RATION)
+	registerTrack(TRACK_FIVE_MINUTE_NAME, TRACK_FIVE_MINUTE_CAPACITY, TRACK_FIVE_MINUTE_RATIO)
+	registerTrack(TRACK_HOUR_NAME, TRACK_HOUR_CAPACITY, TRACK_HOUR_RATIO)
 
 }
 
-func digestBall(ball uint8, minutesToRun uint32) bool {
+func digestBall(ball int, minutesToRun int) {
 
-	continueCycling := true
+	for index, _ := range tracks {
 
-	for index, track := range tracks {
-
-		if getTotalMinutes() >= minutesToRun {
-			continueCycling = false
-			break
-		}
-
-		flushedBalls := track.AddBall(ball) // returned in reverse order
+		// Add ball and if track full, return balls in reverse order. 
+		// The orginal ball added does not return in this slice.
+		flushedBalls := tracks[index].AddBall(ball)
 		
+		// No flushed balls returned, meaning there was room on this track.
 		if len(flushedBalls) == 0 {
 			break
 		}
@@ -83,47 +109,35 @@ func digestBall(ball uint8, minutesToRun uint32) bool {
 
 	}
 
-	return continueCycling
-
 }
 
-func GetCurrentStateString() string {
-
-	var jsonTracks = make([]string, len(tracks))
-
-	for _, track := range tracks {
-		jsonTracks = append(jsonTracks, track.String())
-	}
-
-	return fmt.Sprintf("{%s,%s}", strings.Join(jsonTracks, ","), clockQueue)
+func registerTrack(name string, capacity int, multiplier int) {
+	tracks = append(tracks, track.NewTrack(name, capacity, multiplier))
 }
 
-func getTotalDays() uint32 {
+func getTotalDays() int {
 
 	if clockCycles > 0 {
-		return clockCycles * 2
+		return int(math.Floor(float64(clockCycles) / 2.0))
 	} else { 
 		return 0
 	}
 
 }
 
-func registerTrack(name string, capacity uint8, multiplier uint8) {
-	tracks = append(tracks, track.NewTrack(name, capacity, multiplier))
+func getTotalMinutes() int {
+	// 1440 Minutes in a Day
+	return int((float64(clockCycles) / 2.0) * 1440.0) + getCurrentCycledMinutes()
 }
 
-func getTotalMinutes() uint32 {
-	return (getTotalDays() * 720) + getCurrentCycleMinutes()
-}
+func getCurrentCycledMinutes() int {
 
-func getCurrentCycleMinutes() uint32 {
-
-	var totalCycleMinutes uint32
+	var totalCycledMinutes int
 
 	for _, track := range tracks {
-		totalCycleMinutes += track.GetMinutes()
+		totalCycledMinutes += track.GetMinutes()
 	} 
 
-	return totalCycleMinutes
+	return totalCycledMinutes
 
 }

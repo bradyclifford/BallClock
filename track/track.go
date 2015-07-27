@@ -1,39 +1,48 @@
 /*
-A track or rail of the clock
+A track or rail of a ball clock
 */
 
 package track
 
-import "encoding/json"
+import (
+	"fmt"
+	"encoding/json"
+)
 
 type Track struct {
 	name string
 	// How many balls the track can hold
-	capacity uint8
-	minuteRatio uint8
-	balls []uint8
+	capacity int
+	// Multiplication value that each ball represents as a minute
+	minuteRatio int
+	// Slice of balls
+	balls []int
 }
 
-func NewTrack(name string, capacity uint8, multiplier uint8) Track {
+// Creates a new Track instance
+func NewTrack(name string, capacity int, minuteRatio int) Track {
 
 	// Do a one liner here
-	if multiplier == 0 {
-		multiplier = 1
+	if minuteRatio == 0 {
+		minuteRatio = 1
 	}
 
-	balls := make([]uint8, capacity)
+	balls := []int{}
 
-	return Track{name, capacity, multiplier, balls}
+	return Track{name, capacity, minuteRatio, balls}
+
 }
 
-// Empty the ball holder and return a reversed list of the spilt Balls
-func (t *Track) Flush() []uint8 {
+// Empty the ball holder and return a reversed list of the flushed balls
+func (t *Track) Flush() []int {
 
-	flushedBalls := make([]uint8, t.capacity)
+	flushedBalls := make([]int, t.capacity)
 
 	for i := range t.balls {
-		flushedBalls[(t.capacity - 1) - uint8(i)] = t.balls[i]
+		flushedBalls[(t.capacity - 1) - i] = t.balls[i]
 	}
+
+	t.balls = []int{}
 
 	return flushedBalls
 
@@ -41,23 +50,26 @@ func (t *Track) Flush() []uint8 {
 
 // Add a ball to the rail.  If the rail is full, it will spill.
 // A slice of spilled balls is returned.
-func (t *Track) AddBall(ball uint8) []uint8 {
+func (t *Track) AddBall(ball int) []int {
 
 	if t.IsAtCapacity() {
 		return t.Flush()
 	}
-	return []uint8{}
+
+	t.balls = append(t.balls, ball)
+	// Return an empty slice
+	return []int{}
 }
 
 func (t *Track) IsAtCapacity() bool {
-	return uint8(len(t.balls)) == t.capacity
+	return len(t.balls) == t.capacity
 }
 
-func (t *Track) GetMinutes() uint32 {
-	return uint32(len(t.balls) * int(t.minuteRatio))
+func (t *Track) GetMinutes() int {
+	return len(t.balls) * t.minuteRatio
 }
 
 func (t *Track) String() string {
 	json, _ := json.Marshal(t.balls)
-	return t.name + ":" + string(json)
+	return fmt.Sprintf("\"%s\":%s", t.name, json)
 }
