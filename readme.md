@@ -4,6 +4,8 @@ SUMMARY
 Simulation of a ball-clock that outputs the number of
 days elapsed before the clock completely cycles through and resets its orginal state.
 
+Better stated, the program computes the time before repetition, which varies according to the total number of balls present.
+
 USAGE
 =================
 The program takes input from the command line flag parameters:
