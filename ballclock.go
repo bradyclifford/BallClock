@@ -3,8 +3,8 @@
 	Brady Clifford - July 26, 2015
 
 	Summary: 
-	Simulation of a ball-clock that outputs the number of
-	days which elapse before the clock completly cycles through and resets to its orginal state.
+	Simulation of a ball-clock that outputs the number of days which elapse before the clock completly cycles through and resets to its orginal state.
+	Program computes the time before repetition, which varies according to the total number of balls present.
 
 	-balls: must be between 27 and 127
 	-minutes: must be a positive integer between 0 to 3477600. 

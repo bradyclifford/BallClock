@@ -97,6 +97,10 @@ func initClock(queueCapacity int) {
 
 	registerTrack(TRACK_MINUTE_NAME, TRACK_MINUTE_CAPACITY, TRACK_MINUTE_RATION)
 	registerTrack(TRACK_FIVE_MINUTE_NAME, TRACK_FIVE_MINUTE_CAPACITY, TRACK_FIVE_MINUTE_RATIO)
+	
+	// The hour indicator also holds eleven balls, but should have one extra fixed ball which is always present 
+	// so that counting the balls in the hour indicator will yield an hour in the range one to twelve.  
+	// I didn't implement this because I didn't see the need.  I am not needing to display the hours.
 	registerTrack(TRACK_HOUR_NAME, TRACK_HOUR_CAPACITY, TRACK_HOUR_RATIO)
 
 }
