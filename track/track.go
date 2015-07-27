@@ -1,5 +1,7 @@
-/*
-A track or rail of a ball clock
+/* 
+	BallClock Track Package: track or rail of a ball clock
+	Keeps track of the capacity of the track, stores the balls and flushes them when capacity is met
+	Brady Clifford - July 26, 2015
 */
 
 package track
@@ -22,7 +24,8 @@ type Track struct {
 // Creates a new Track instance
 func NewTrack(name string, capacity int, minuteRatio int) Track {
 
-	// Do a one liner here
+	// Don't want to ever divide by zero
+	// TODO: maybe should through an error here instead
 	if minuteRatio == 0 {
 		minuteRatio = 1
 	}
@@ -42,14 +45,17 @@ func (t *Track) Flush() []int {
 		flushedBalls[(t.capacity - 1) - i] = t.balls[i]
 	}
 
+	// Reset to an empty slice
 	t.balls = []int{}
 
 	return flushedBalls
 
 }
 
-// Add a ball to the rail.  If the rail is full, it will spill.
-// A slice of spilled balls is returned.
+// Add a ball to the track.  If the rail is at capacity, it will flush.
+// Note that the ball that was going to be added, is discarded.
+// Returns either an empty slice if the ball is 
+// added or a reversed slice of the flushed balls.
 func (t *Track) AddBall(ball int) []int {
 
 	if t.IsAtCapacity() {
@@ -57,6 +63,7 @@ func (t *Track) AddBall(ball int) []int {
 	}
 
 	t.balls = append(t.balls, ball)
+
 	// Return an empty slice
 	return []int{}
 }

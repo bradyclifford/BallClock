@@ -2,6 +2,11 @@
 The ball clock's queue
 */
 
+/* 
+	BallClock Queue Package: keeps track of queue balls and determines when the queue is reset
+	Brady Clifford - July 26, 2015
+*/
+
 package queue
 
 import "encoding/json"
@@ -24,14 +29,14 @@ func NewQueue(capacity int) Queue {
 	return Queue{capacity, balls}
 }
 
-// Remove and return a ball from the beginning of the queue
+// Return a ball from the beginning of the queue and remove it from the slice
 func (q *Queue) GetBall() int {
 	ball := q.balls[0]
 	q.balls = q.balls[1:]
 	return ball
 }
 
-// Put an array of balls back to the end of the queue
+// Add a slice of balls to the end of the queue
 // Note: assumes they have already been reversed
 func (q *Queue) AddBalls(balls []int) {
 	q.balls = append(q.balls, balls...)
@@ -40,16 +45,16 @@ func (q *Queue) AddBalls(balls []int) {
 // Determines if the balls are in their original position in the queue
 func (q *Queue) IsReset() bool {
 	
+	// Can't be reset if not at its orginal capacity
 	if !q.IsAtCapacity() {
 		return false
 	}
 
+	// Compare each ball in queue to see if it is in order
 	for i := 0; i < q.capacity; i++ {
-	
 		if q.balls[i] != (i + 1) {
 			return false
 		}
-
 	}
 	
 	return true

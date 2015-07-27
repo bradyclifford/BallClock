@@ -98,7 +98,7 @@ func TestShouldDigest1BallAndReturn1Minute(t *testing.T) {
 	initClock(10)
 
 	// Act
-	digestBall(1, 0)
+	digestBall(1)
 
 	totalMinutes := getTotalMinutes()
 
@@ -115,8 +115,8 @@ func TestShouldDigest2BallsAndReturn2Minutes(t *testing.T) {
 	initClock(10)
 
 	// Act
-	digestBall(1, 0)
-	digestBall(2, 0)
+	digestBall(1)
+	digestBall(2)
 
 	totalMinutes := getTotalMinutes()
 
@@ -133,11 +133,11 @@ func TestShouldDigest5BallsAndReturn5Minutes(t *testing.T) {
 	initClock(10)
 
 	// Act
-	digestBall(1, 0)
-	digestBall(2, 0)
-	digestBall(3, 0)
-	digestBall(4, 0)
-	digestBall(5, 0)
+	digestBall(1)
+	digestBall(2)
+	digestBall(3)
+	digestBall(4)
+	digestBall(5)
 
 	totalMinutes := getTotalMinutes()
 
@@ -156,7 +156,7 @@ func TestShouldDigest1HourOfBalls(t *testing.T) {
 
 	// Act
 	for i := 1; i <= ballCount; i++ {
-		digestBall(i, 0)
+		digestBall(i)
 	}
 	
 	totalMinutes := getTotalMinutes()
@@ -176,7 +176,7 @@ func TestShouldDigest2HoursOfBalls(t *testing.T) {
 
 	// Act
 	for i := 1; i <= ballCount; i++ {
-		digestBall(i, 0)
+		digestBall(i)
 	}
 	
 	totalMinutes := getTotalMinutes()
@@ -196,7 +196,7 @@ func TestShouldDigestFullClockCycle(t *testing.T) {
 
 	// Act
 	for i := 1; i <= ballCount; i++ {
-		digestBall(i, 0)
+		digestBall(i)
 	}
 	
 	totalMinutes := getTotalMinutes()
@@ -221,7 +221,7 @@ func TestShouldDigestAlmost2Cycles(t *testing.T) {
 
 	// Act
 	for i := 1; i <= ballCount; i++ {
-		digestBall(i, 0)
+		digestBall(i)
 	}
 	
 	totalMinutes := getTotalMinutes()
