@@ -152,7 +152,7 @@ func TestShouldConvertStateToString(t *testing.T) {
 	const BALL_2 = 6
 	const BALL_3 = 7
 	const TRACK_NAME = "Test"
-	const EXPECTED_STATE = TRACK_NAME + ":[5,6,7]"
+	const EXPECTED_STATE = "\"" + TRACK_NAME + "\":[5,6,7]"
 
 	// Arrange
 	tr := NewTrack(TRACK_NAME, 11, 0)
