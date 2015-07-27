@@ -20,12 +20,14 @@ import (
 	"BallClock/control"
 	)
 
+// Static paramater defaults
 const MAX_BALLS = 127
 const MIN_BALLS = 27
 const MAX_MINUTES_TO_RUN = 3477600
 
 // Gets the paramaters from the command line
 // Returns the number of balls to cycle and the number of minutes to run
+// Used the flag package because it already handles command input and type validation
 func parseCommandLine() (int, int) {
 
 	// If no ball count specified, defaults MINBALLS
