@@ -7,6 +7,7 @@ days which elapse before the clock completly cycles through and resets to its or
 USAGE
 =================
 The program takes input from the command line flag paramaters:
+
 	# Run 30 balls through the ball clock cycle
 	BallClock.exe -balls=30
 	30 balls cycle after 15 days.
